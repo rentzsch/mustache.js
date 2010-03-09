@@ -186,12 +186,25 @@ var Mustache = function() {
     */
     find: function(name, context) {
       name = this.trim(name);
-      if(typeof context[name] === "function") {
-        return context[name].apply(context);
+      
+      var components = name.split("."),
+          finalValue = context;
+
+      for (var i = 0, count = components.length; i < count; i++) {
+        var pathComponent = components[i];
+
+        if(typeof finalValue[pathComponent] === "function") {
+            finalValue = finalValue[pathComponent].apply(finalValue);
+        }
+        if(finalValue[pathComponent] !== undefined) {
+            finalValue = finalValue[pathComponent];
+        }
       }
-      if(context[name] !== undefined) {
-        return context[name];
+
+      if (finalValue && finalValue !== context) {
+        return finalValue;
       }
+
       // silently ignore unkown variables
       return "";
     },
